@@ -38,7 +38,7 @@ var initVisualization = () => {
 	var yPadding = 50,
 		yTop = -height/2 + yPadding,
 		yBottom = height/2 - yPadding,
-		yRange = 2,
+		yRange = 0.5,
 		yLogScaleShift = 1,
 		yLogScalePOS = d3.scaleLog([yLogScaleShift, yLogScaleShift + yRange], [0, yTop]),
 		yLogScaleNEG = d3.scaleLog([-yLogScaleShift, -yLogScaleShift - yRange], [0, yBottom]),
@@ -61,7 +61,7 @@ var initVisualization = () => {
 	referenceData = referenceData.filter(d => Math.abs(valueToYCoordinate(d.value)) < yBottom);
 
 	// Buttons functions
-		activateButton = (id) => {
+	var activateButton = (id) => {
 			d3.select(".button#" + id).style("stroke", labelsPrimaryColor);
 			d3.select(".button-label#" + id).style("fill", labelsPrimaryColor);
 		},
@@ -234,14 +234,14 @@ var initVisualization = () => {
             .style("opacity", 1)
             .on("click", (d, i) => console.log(d, i));
 
-        // Exit selection
-        points.exit()
-            .remove();
-
         // Update selection
         points
             .attr("cx", d => d.x)
             .attr("cy", d => d.y);
+
+        // Exit selection
+        points.exit()
+            .remove();
 
         // Update N label
         nLabel.text("N = " + point.i);
