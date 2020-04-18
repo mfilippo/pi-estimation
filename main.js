@@ -1,17 +1,22 @@
 
-// Light theme
-// var backgroundColor = "white",
-// 	pointsColorCold = "gray",
-// 	pointsColorHot = "gray",
-// 	labelsPrimaryColor = "black",
-// 	labelsSecondaryColor = "silver";
+var themes = {
+	light: {
+		backgroundColor: "white",
+		pointsColorCold: "gray",
+		pointsColorHot: "gray",
+		labelsPrimaryColor: "black",
+		labelsSecondaryColor: "silver"
+	},
+	dark: {
+		backgroundColor: "#192428",
+		pointsColorCold: "#2e86ab",
+		pointsColorHot: "#39ace7",
+		labelsPrimaryColor: "#0784b5",
+		labelsSecondaryColor: "#414c50"
+	}
+};
 
-// Blue dark theme
-var backgroundColor = "#192428",
-	pointsColorCold = "#2e86ab",
-	pointsColorHot = "#39ace7",
-	labelsPrimaryColor = "#0784b5",
-	labelsSecondaryColor = "#414c50";
+var currentTheme = themes.light;	
 
 var connected = false;
 
@@ -62,12 +67,12 @@ var initVisualization = () => {
 
 	// Buttons functions
 	var activateButton = (id) => {
-			d3.select(".button#" + id).style("stroke", labelsPrimaryColor);
-			d3.select(".button-label#" + id).style("fill", labelsPrimaryColor);
+			d3.select(".button#" + id).style("stroke", currentTheme.labelsPrimaryColor);
+			d3.select(".button-label#" + id).style("fill", currentTheme.labelsPrimaryColor);
 		},
 		deactivateButton = (id) => {
-			d3.select(".button#" + id).style("stroke", labelsSecondaryColor);
-			d3.select(".button-label#" + id).style("fill", labelsSecondaryColor);
+			d3.select(".button#" + id).style("stroke", currentTheme.labelsSecondaryColor);
+			d3.select(".button-label#" + id).style("fill", currentTheme.labelsSecondaryColor);
 		},
 		connect = () => {
 			if (!connected) {
@@ -88,17 +93,17 @@ var initVisualization = () => {
 	var buttonsData = [
 		{
 			id: "connect",
-			x: -width/2 + xPadding,
+			x: 0 - 100 - 5,
 			y: -height/2 + 15,
-			text: "connect",
+			text: "run",
 			width: 100,
 			height: 25,
 			onClick: connect
 		}, {
 			id: "disconnect",
-			x: -width/2 + xPadding + 15 + 100,
+			x: 0 + 5,
 			y: -height/2 + 15,
-			text: "disconnect",
+			text: "pause",
 			width: 100,
 			height: 25,
 			onClick: disconnect
@@ -110,7 +115,7 @@ var initVisualization = () => {
 		.append("svg")
 		.attr("width", width)
 	    .attr("height", height)
-	    .style("background-color", backgroundColor)
+	    .style("background-color", currentTheme.backgroundColor)
 	    .append('g')
 	    .attr("transform", `translate(${width / 2}, ${height / 2})`);
 
@@ -125,9 +130,9 @@ var initVisualization = () => {
 		.attr("y", d => d.y)
 		.attr("width", d => d.width)
 		.attr("height", d => d.height)
-		.style("stroke", labelsPrimaryColor)
+		.style("stroke", currentTheme.labelsPrimaryColor)
 		.style("stroke-width", .5)
-		.style("fill", backgroundColor)
+		.style("fill", currentTheme.backgroundColor)
 		.style("cursor", "pointer")
 		.on("click", d => d.onClick());
 
@@ -142,7 +147,7 @@ var initVisualization = () => {
 		.attr("y", d => d.y + d.height/2)
 		.attr("text-anchor", "middle")
 		.style("pointer-events", "none")
-	    .style("fill", labelsPrimaryColor)
+	    .style("fill", currentTheme.labelsPrimaryColor)
 		.text(d => d.text);
 
 	deactivateButton("disconnect");
@@ -159,7 +164,7 @@ var initVisualization = () => {
 			return p.toString();
 		})
 		.style("fill", "none")
-		.style("stroke", d => d.value == 0 ? labelsPrimaryColor : labelsSecondaryColor)
+		.style("stroke", d => d.value == 0 ? currentTheme.labelsPrimaryColor : currentTheme.labelsSecondaryColor)
 		.style("stroke-width", 1)
 		.style("stroke-dasharray", d => d.value == 0 ? null : "2, 2");
 
@@ -172,7 +177,7 @@ var initVisualization = () => {
 		.attr("x", d => xLeft - 10)
 		.attr("y", d => valueToYCoordinate(d.value))
 		.attr("text-anchor", "end")
-	    .style("fill", d => d.value == 0 ? labelsPrimaryColor : labelsSecondaryColor)
+	    .style("fill", d => d.value == 0 ? currentTheme.labelsPrimaryColor : currentTheme.labelsSecondaryColor)
 		.text(d => {
 			if (d.value == 0) {
 				return "𝜋";
@@ -189,7 +194,7 @@ var initVisualization = () => {
 		.attr("x", d => xRight + 10)
 		.attr("y", 0)
 		.attr("text-anchor", "start")
-	    .style("fill", labelsPrimaryColor)
+	    .style("fill", currentTheme.labelsPrimaryColor)
 		.text("N = 0");
 
 	// Apply global text properties
@@ -202,7 +207,7 @@ var initVisualization = () => {
 	var i = 0;
     updateVisualization = (point) => {
 
-    	// Copmute x coordinate
+    	// Compute x coordinate
         var pointX;
         if (i < dataBufferSize) {
             pointX = xLeft + i*stepDistance;
@@ -230,7 +235,7 @@ var initVisualization = () => {
             .attr("r", 1)
             .attr("cx", d => d.x)
             .attr("cy", d => d.y)
-            .style("fill", pointsColorHot)
+            .style("fill", currentTheme.pointsColorHot)
             .style("opacity", 1)
             .on("click", (d, i) => console.log(d, i));
 
@@ -255,14 +260,14 @@ var startEstimation = () => {
 		i = 0,
     	inCircle = 0,
     	pi = 0,
-    	nMax = 1000;
+    	nMax = null;
 
 	var isInCircle = (x, y) => Math.pow(x, 2) + Math.pow(y, 2) <= 1;
 	
 	setInterval(() => {
 		if (connected) {
 			i = i + 1;
-			if (i >= nMax) {
+			if (nMax != null && i >= nMax) {
 				i = 1;
 				inCircle = 0;
 				pi = 0;
